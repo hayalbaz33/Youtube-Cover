@@ -1,0 +1,66 @@
+name: Generate published thumbnails manifest
+
+on:
+  push:
+    paths:
+      - "published-thumbnails/**"
+      - ".github/workflows/generate-published-manifest.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  generate-manifest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate manifest.json
+        shell: python
+        run: |
+          import json
+          import re
+          from pathlib import Path
+
+          folder = Path("published-thumbnails")
+          manifest_path = folder / "manifest.json"
+          image_extensions = {".jpg", ".jpeg", ".png", ".webp", ".gif"}
+
+          def make_title(path):
+              name = path.stem
+              name = re.sub(r"[-_]+", " ", name)
+              name = re.sub(r"\s+", " ", name).strip()
+              return name.title() or "Yeni Kapak"
+
+          items = []
+          if folder.exists():
+              for path in sorted(folder.iterdir(), key=lambda item: item.name.lower()):
+                  if path.is_file() and path.suffix.lower() in image_extensions:
+                      items.append({
+                          "title": make_title(path),
+                          "image": path.as_posix()
+                      })
+
+          folder.mkdir(exist_ok=True)
+          manifest_path.write_text(
+              json.dumps(items, ensure_ascii=False, indent=2) + "\n",
+              encoding="utf-8"
+          )
+
+      - name: Commit manifest changes
+        shell: bash
+        run: |
+          if git diff --quiet -- published-thumbnails/manifest.json; then
+            echo "manifest.json is already up to date."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add published-thumbnails/manifest.json
+          git commit -m "Update published thumbnails manifest"
+          git push

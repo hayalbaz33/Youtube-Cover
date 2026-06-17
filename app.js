@@ -1,4 +1,4 @@
-const fileInput = document.querySelector("#fileInput");
+﻿const fileInput = document.querySelector("#fileInput");
 const dropZone = document.querySelector("#dropZone");
 const videoGrid = document.querySelector("#videoGrid");
 const template = document.querySelector("#videoCardTemplate");
@@ -13,12 +13,8 @@ const publishedStatus = document.querySelector("#publishedStatus");
 const sourceFilterButtons = document.querySelectorAll(".filter-btn");
 
 const THEME_STORAGE_KEY = "youtube-preview-theme";
-const GITHUB_THUMBNAIL_CONFIG = {
-  owner: "hayalbaz33",
-  repo: "Youtube-Cover",
-  branch: "main",
-  folder: "published-thumbnails",
-};
+const PUBLISHED_THUMBNAILS_FOLDER = "published-thumbnails";
+const PUBLISHED_MANIFEST_URL = `${PUBLISHED_THUMBNAILS_FOLDER}/manifest.json`;
 const IMAGE_EXTENSIONS = [".jpg", ".jpeg", ".png", ".webp", ".gif"];
 const PLACEHOLDER_THUMBNAIL = createThumb("Kapak Yuklenemedi", "published-thumbnails", "#2d2d2d", "#555555", "#ffffff", "abstract");
 
@@ -36,7 +32,7 @@ const mockVideos = [
     dateText: "2 hours ago",
     duration: "3:47",
     source: "sample",
-    badgeText: "Örnek video",
+    badgeText: "Ã–rnek video",
     avatar: ["#f5f5f5", "#5f6368"],
     imageUrl: createThumb("CBS NEWS", "Desert Frontline", "#b9a17d", "#23201c", "#f7f1e7", "news"),
   },
@@ -48,7 +44,7 @@ const mockVideos = [
     dateText: "3 months ago",
     duration: "23:59:40",
     source: "sample",
-    badgeText: "Örnek video",
+    badgeText: "Ã–rnek video",
     avatar: ["#72512c", "#d8b56a"],
     imageUrl: createThumb("Work & Jazz", "rain sounds", "#14313c", "#c46930", "#fff7e6", "music"),
   },
@@ -60,7 +56,7 @@ const mockVideos = [
     dateText: "5 months ago",
     duration: "36:15",
     source: "sample",
-    badgeText: "Örnek video",
+    badgeText: "Ã–rnek video",
     avatar: ["#4b352b", "#c69b80"],
     imageUrl: createThumb("Frozen In Time", "abandoned mansion", "#2d3d36", "#ad7d55", "#f0e3d2", "mansion"),
   },
@@ -72,7 +68,7 @@ const mockVideos = [
     dateText: "9 hours ago",
     duration: "27:45",
     source: "sample",
-    badgeText: "Örnek video",
+    badgeText: "Ã–rnek video",
     avatar: ["#7da06d", "#dceab8"],
     imageUrl: createThumb("Q&A", "March edition", "#d9c6ad", "#577c9c", "#ffffff", "talk"),
   },
@@ -84,7 +80,7 @@ const mockVideos = [
     dateText: "6 months ago",
     duration: "20:18",
     source: "sample",
-    badgeText: "Örnek video",
+    badgeText: "Ã–rnek video",
     avatar: ["#6f4e32", "#d2a064"],
     imageUrl: createThumb("WTF?", "Oak tree discovery", "#855f3d", "#d7b57a", "#241610", "wood"),
   },
@@ -96,7 +92,7 @@ const mockVideos = [
     dateText: "1 month ago",
     duration: "10:39",
     source: "sample",
-    badgeText: "Örnek video",
+    badgeText: "Ã–rnek video",
     avatar: ["#020202", "#4ed8e8"],
     imageUrl: createThumb("MLB Moments", "impossible catch", "#2d8d48", "#f4f7ff", "#ffffff", "sports"),
   },
@@ -108,7 +104,7 @@ const mockVideos = [
     dateText: "7 days ago",
     duration: "7:29",
     source: "sample",
-    badgeText: "Örnek video",
+    badgeText: "Ã–rnek video",
     avatar: ["#433043", "#e6b98b"],
     imageUrl: createThumb("YOU'RE A D*CK!", "stand up", "#161b50", "#b04953", "#ffffff", "stage"),
   },
@@ -120,7 +116,7 @@ const mockVideos = [
     dateText: "2 years ago",
     duration: "223:36:40",
     source: "sample",
-    badgeText: "Örnek video",
+    badgeText: "Ã–rnek video",
     avatar: ["#0c0c0c", "#727272"],
     imageUrl: createThumb("223 HOURS", "slow burn", "#c05f59", "#f3b07d", "#311111", "abstract"),
   },
@@ -132,7 +128,7 @@ const mockVideos = [
     dateText: "3 weeks ago",
     duration: "23:44:46",
     source: "sample",
-    badgeText: "Örnek video",
+    badgeText: "Ã–rnek video",
     avatar: ["#d1782f", "#f2dd74"],
     imageUrl: createThumb("CHILL LOFI BEATS", "deep focus", "#417d72", "#f7a6c8", "#ffffff", "lofi"),
   },
@@ -188,13 +184,13 @@ function addFiles(fileList) {
     id: crypto.randomUUID(),
     title: formatTitleFromFilename(file.name),
     channelName: "Your Channel",
-    views: "Test önizleme",
-    dateText: "Sadece tarayıcıda",
+    views: "Test Ã¶nizleme",
+    dateText: "Sadece tarayÄ±cÄ±da",
     duration: randomDuration(),
     avatar: ["#ff0033", "#3ea6ff"],
     imageUrl: URL.createObjectURL(file),
     source: "upload",
-    badgeText: "Test kapağı",
+    badgeText: "Test kapaÄŸÄ±",
     editable: true,
   }));
 
@@ -231,8 +227,8 @@ function generateVideoMeta(seed) {
   const hash = hashString(seed);
   const minutes = (hash % 22) + 4;
   const seconds = String((hash >> 4) % 60).padStart(2, "0");
-  const views = [`${(hash % 90) + 10} B görüntülenme`, `${(hash % 8) + 1}.${(hash >> 3) % 9} Mn görüntülenme`, `${(hash % 700) + 100} K görüntülenme`];
-  const dates = ["Bugün", "1 gün önce", "3 gün önce", "1 hafta önce", "2 hafta önce", "1 ay önce"];
+  const views = [`${(hash % 90) + 10} B gÃ¶rÃ¼ntÃ¼lenme`, `${(hash % 8) + 1}.${(hash >> 3) % 9} Mn gÃ¶rÃ¼ntÃ¼lenme`, `${(hash % 700) + 100} K gÃ¶rÃ¼ntÃ¼lenme`];
+  const dates = ["BugÃ¼n", "1 gÃ¼n Ã¶nce", "3 gÃ¼n Ã¶nce", "1 hafta Ã¶nce", "2 hafta Ã¶nce", "1 ay Ã¶nce"];
 
   return {
     duration: `${minutes}:${seconds}`,
@@ -242,25 +238,24 @@ function generateVideoMeta(seed) {
 }
 
 async function loadPublishedThumbnails() {
-  setPublishedStatus("Yayınlanan kapaklar yükleniyor...");
+  setPublishedStatus("YayÄ±nlanan kapaklar yÃ¼kleniyor...");
 
   try {
     const manifestItems = await fetchPublishedFromManifest();
-    const files = manifestItems || await fetchPublishedFromGitHub();
 
-    publishedThumbnails = files
-      .filter((file) => isImageFile(file.name || file.path || file.download_url || file.url || ""))
+    publishedThumbnails = manifestItems
+      .filter((file) => isImageFile(file.image || file.name || ""))
       .map(createPublishedThumbnailData);
 
     if (publishedThumbnails.length > 0) {
-      setPublishedStatus(`${publishedThumbnails.length} yayınlanan kapak yüklendi.`);
+      setPublishedStatus(`${publishedThumbnails.length} yayÄ±nlanan kapak yÃ¼klendi.`);
     } else {
-      setPublishedStatus("published-thumbnails klasöründe gösterilecek kapak bulunamadı.");
+      setPublishedStatus("published-thumbnails klasÃ¶rÃ¼nde gÃ¶sterilecek kapak bulunamadÄ±.");
     }
   } catch (error) {
-    console.warn("Yayınlanan kapaklar yüklenemedi:", error);
+    console.warn("YayÄ±nlanan kapaklar yÃ¼klenemedi:", error);
     publishedThumbnails = [];
-    setPublishedStatus(error.message || "Yayınlanan kapaklar şu an yüklenemedi.", "warning");
+    setPublishedStatus(error.message || "YayÄ±nlanan kapaklar ÅŸu an yÃ¼klenemedi.", "warning");
   }
 
   renderGrid();
@@ -268,73 +263,39 @@ async function loadPublishedThumbnails() {
 
 async function fetchPublishedFromManifest() {
   try {
-    const response = await fetch(`${GITHUB_THUMBNAIL_CONFIG.folder}/manifest.json`, { cache: "no-store" });
+    const response = await fetch(PUBLISHED_MANIFEST_URL, { cache: "no-store" });
 
     if (!response.ok) {
-      return null;
+      console.warn(`${PUBLISHED_MANIFEST_URL} bulunamadÄ± veya okunamadÄ±. YayÄ±nlanan kapaklar atlanÄ±yor.`);
+      return [];
     }
 
     const manifest = await response.json();
-    const entries = Array.isArray(manifest) ? manifest : manifest.files;
-
-    if (!Array.isArray(entries)) {
-      return null;
+    if (!Array.isArray(manifest)) {
+      console.warn(`${PUBLISHED_MANIFEST_URL} bir JSON array olmalÄ±.`);
+      return [];
     }
 
-    return entries.map((entry) => {
-      if (typeof entry === "string") {
-        return {
-          name: entry.split("/").pop(),
-          download_url: `${GITHUB_THUMBNAIL_CONFIG.folder}/${entry}`,
-        };
-      }
-
-      return {
-        name: entry.name || entry.path || "",
-        download_url: entry.download_url || entry.url || `${GITHUB_THUMBNAIL_CONFIG.folder}/${entry.path || entry.name}`,
-      };
-    });
+    return manifest;
   } catch (error) {
-    console.warn("published-thumbnails manifest okunamadı:", error);
-    return null;
+    console.warn("published-thumbnails manifest okunamadÄ±:", error);
+    return [];
   }
 }
 
-async function fetchPublishedFromGitHub() {
-  const { owner, repo, branch, folder } = GITHUB_THUMBNAIL_CONFIG;
-  const hasConfig = owner && repo && owner !== "GITHUB_KULLANICI_ADI" && repo !== "REPO_ADI";
-
-  if (!hasConfig) {
-    throw new Error("GitHub kapak klasörü için owner/repo bilgisi girilmemiş.");
-  }
-
-  const endpoint = `https://api.github.com/repos/${owner}/${repo}/contents/${folder}?ref=${branch}`;
-  const response = await fetch(endpoint, {
-    headers: {
-      Accept: "application/vnd.github+json",
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error("Yayınlanan kapaklar şu an yüklenemedi.");
-  }
-
-  const files = await response.json();
-  return Array.isArray(files) ? files.filter((file) => file.type === "file") : [];
-}
-
-function createPublishedThumbnailData(file) {
-  const filename = file.name || file.path || "thumbnail";
+function createPublishedThumbnailData(file, index) {
+  const imageUrl = file.image || "";
+  const filename = imageUrl.split("/").pop() || file.title || `thumbnail-${index}`;
   const meta = generateVideoMeta(filename);
 
   return {
-    id: `published-${filename}`,
-    title: formatTitleFromFilename(filename),
-    imageUrl: file.download_url || file.url || `${GITHUB_THUMBNAIL_CONFIG.folder}/${filename}`,
+    id: `published-${index}`,
+    title: file.title || formatTitleFromFilename(filename),
+    imageUrl,
     channelName: "HayalHanem",
-    duration: meta.duration,
-    views: meta.views,
-    dateText: meta.dateText,
+    duration: file.duration || meta.duration,
+    views: file.views || meta.views,
+    dateText: file.dateText || meta.dateText,
     source: "published",
     badgeText: "Yayınlandı",
     avatar: ["#ff0033", "#f5a623"],
@@ -397,7 +358,7 @@ function renderGrid() {
     title.textContent = video.title;
     titleInput.value = video.title;
     channel.textContent = video.channelName;
-    stats.textContent = `${video.views} • ${video.dateText}`;
+    stats.textContent = `${video.views} â€¢ ${video.dateText}`;
     duration.textContent = video.duration;
     badge.textContent = video.badgeText;
     avatar.style.setProperty("--avatar-a", video.avatar[0]);
@@ -424,7 +385,7 @@ function renderGrid() {
   });
 
   clearUploadsButton.disabled = uploadedThumbnails.length === 0;
-  toggleSamplesButton.textContent = showSamples ? "Örnekleri gizle" : "Örnekleri göster";
+  toggleSamplesButton.textContent = showSamples ? "Ã–rnekleri gizle" : "Ã–rnekleri gÃ¶ster";
   uploadEmpty.classList.toggle("visible", videos.length === 0);
   setEmptyMessage(getEmptyMessage());
 }
@@ -435,18 +396,18 @@ function render() {
 
 function getEmptyMessage() {
   if (activeFilter === "published") {
-    return "Yayınlanan kapak bulunamadı.";
+    return "YayÄ±nlanan kapak bulunamadÄ±.";
   }
 
   if (activeFilter === "uploads") {
-    return "Henüz test kapağı yüklenmedi.";
+    return "HenÃ¼z test kapaÄŸÄ± yÃ¼klenmedi.";
   }
 
   if (activeFilter === "samples" && !showSamples) {
-    return "Örnek videolar şu an gizli.";
+    return "Ã–rnek videolar ÅŸu an gizli.";
   }
 
-  return "Gösterilecek kapak bulunamadı.";
+  return "GÃ¶sterilecek kapak bulunamadÄ±.";
 }
 
 function setPublishedStatus(message, type = "") {
@@ -515,9 +476,9 @@ function updateThemeButton(theme) {
     return;
   }
 
-  const nextLabel = theme === "dark" ? "Açık" : "Koyu";
+  const nextLabel = theme === "dark" ? "AÃ§Ä±k" : "Koyu";
   themeText.textContent = nextLabel;
-  themeToggle.setAttribute("aria-label", `${nextLabel} temaya geç`);
+  themeToggle.setAttribute("aria-label", `${nextLabel} temaya geÃ§`);
 }
 
 initTheme();
