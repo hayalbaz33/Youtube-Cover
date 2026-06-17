@@ -9,93 +9,132 @@ const searchForm = document.querySelector(".search");
 const searchInput = document.querySelector("#searchInput");
 const themeToggle = document.querySelector("#themeToggle");
 const themeText = document.querySelector(".theme-text");
+const publishedStatus = document.querySelector("#publishedStatus");
+const sourceFilterButtons = document.querySelectorAll(".filter-btn");
 
 const THEME_STORAGE_KEY = "youtube-preview-theme";
+const GITHUB_THUMBNAIL_CONFIG = {
+  owner: "hayalbaz33",
+  repo: "Youtube-Cover",
+  branch: "main",
+  folder: "published-thumbnails",
+};
+const IMAGE_EXTENSIONS = [".jpg", ".jpeg", ".png", ".webp", ".gif"];
+const PLACEHOLDER_THUMBNAIL = createThumb("Kapak Yuklenemedi", "published-thumbnails", "#2d2d2d", "#555555", "#ffffff", "abstract");
 
-let uploads = [];
+let uploadedThumbnails = [];
+let publishedThumbnails = [];
+let activeFilter = "all";
 let showSamples = true;
 
-const sampleVideos = [
+const mockVideos = [
   {
     id: "sample-1",
     title: "New attack targets U.S. base in Syria following American airstrikes",
-    channel: "CBS News",
-    stats: "126K views • 2 hours ago",
+    channelName: "CBS News",
+    views: "126K views",
+    dateText: "2 hours ago",
     duration: "3:47",
+    source: "sample",
+    badgeText: "Örnek video",
     avatar: ["#f5f5f5", "#5f6368"],
-    thumbnail: createThumb("CBS NEWS", "Desert Frontline", "#b9a17d", "#23201c", "#f7f1e7", "news"),
+    imageUrl: createThumb("CBS NEWS", "Desert Frontline", "#b9a17d", "#23201c", "#f7f1e7", "news"),
   },
   {
     id: "sample-2",
     title: "[Playlist] Soothing 24-hour playlist of jazz music and rain sounds for work",
-    channel: "In The Rain",
-    stats: "2M views • 3 months ago",
+    channelName: "In The Rain",
+    views: "2M views",
+    dateText: "3 months ago",
     duration: "23:59:40",
+    source: "sample",
+    badgeText: "Örnek video",
     avatar: ["#72512c", "#d8b56a"],
-    thumbnail: createThumb("Work & Jazz", "rain sounds", "#14313c", "#c46930", "#fff7e6", "music"),
+    imageUrl: createThumb("Work & Jazz", "rain sounds", "#14313c", "#c46930", "#fff7e6", "music"),
   },
   {
     id: "sample-3",
     title: "ABANDONED 1600's Mansion With EVERYTHING Left Inside",
-    channel: "Jeremy Xplores",
-    stats: "663K views • 5 months ago",
+    channelName: "Jeremy Xplores",
+    views: "663K views",
+    dateText: "5 months ago",
     duration: "36:15",
+    source: "sample",
+    badgeText: "Örnek video",
     avatar: ["#4b352b", "#c69b80"],
-    thumbnail: createThumb("Frozen In Time", "abandoned mansion", "#2d3d36", "#ad7d55", "#f0e3d2", "mansion"),
+    imageUrl: createThumb("Frozen In Time", "abandoned mansion", "#2d3d36", "#ad7d55", "#f0e3d2", "mansion"),
   },
   {
     id: "sample-4",
     title: "YOUR QUESTIONS answered! March edition",
-    channel: "The Villages 365",
-    stats: "687 views • 9 hours ago",
+    channelName: "The Villages 365",
+    views: "687 views",
+    dateText: "9 hours ago",
     duration: "27:45",
+    source: "sample",
+    badgeText: "Örnek video",
     avatar: ["#7da06d", "#dceab8"],
-    thumbnail: createThumb("Q&A", "March edition", "#d9c6ad", "#577c9c", "#ffffff", "talk"),
+    imageUrl: createThumb("Q&A", "March edition", "#d9c6ad", "#577c9c", "#ffffff", "talk"),
   },
   {
     id: "sample-5",
     title: "A shocking find in an oak tree",
-    channel: "Belko Wood",
-    stats: "52M views • 6 months ago",
+    channelName: "Belko Wood",
+    views: "52M views",
+    dateText: "6 months ago",
     duration: "20:18",
+    source: "sample",
+    badgeText: "Örnek video",
     avatar: ["#6f4e32", "#d2a064"],
-    thumbnail: createThumb("WTF?", "Oak tree discovery", "#855f3d", "#d7b57a", "#241610", "wood"),
+    imageUrl: createThumb("WTF?", "Oak tree discovery", "#855f3d", "#d7b57a", "#241610", "wood"),
   },
   {
     id: "sample-6",
     title: "1 in a Million MLB Moments",
-    channel: "blitz",
-    stats: "2.1M views • 1 month ago",
+    channelName: "blitz",
+    views: "2.1M views",
+    dateText: "1 month ago",
     duration: "10:39",
+    source: "sample",
+    badgeText: "Örnek video",
     avatar: ["#020202", "#4ed8e8"],
-    thumbnail: createThumb("MLB Moments", "impossible catch", "#2d8d48", "#f4f7ff", "#ffffff", "sports"),
+    imageUrl: createThumb("MLB Moments", "impossible catch", "#2d8d48", "#f4f7ff", "#ffffff", "sports"),
   },
   {
     id: "sample-7",
     title: "The Only Heckler I've Ever Kicked Out",
-    channel: "Drew Lynch",
-    stats: "404K views • 7 days ago",
+    channelName: "Drew Lynch",
+    views: "404K views",
+    dateText: "7 days ago",
     duration: "7:29",
+    source: "sample",
+    badgeText: "Örnek video",
     avatar: ["#433043", "#e6b98b"],
-    thumbnail: createThumb("YOU'RE A D*CK!", "stand up", "#161b50", "#b04953", "#ffffff", "stage"),
+    imageUrl: createThumb("YOU'RE A D*CK!", "stand up", "#161b50", "#b04953", "#ffffff", "stage"),
   },
   {
     id: "sample-8",
     title: "223 hours video.",
-    channel: "Dharkness",
-    stats: "8.4M views • 2 years ago",
+    channelName: "Dharkness",
+    views: "8.4M views",
+    dateText: "2 years ago",
     duration: "223:36:40",
+    source: "sample",
+    badgeText: "Örnek video",
     avatar: ["#0c0c0c", "#727272"],
-    thumbnail: createThumb("223 HOURS", "slow burn", "#c05f59", "#f3b07d", "#311111", "abstract"),
+    imageUrl: createThumb("223 HOURS", "slow burn", "#c05f59", "#f3b07d", "#311111", "abstract"),
   },
   {
     id: "sample-9",
     title: "Garden of Eden - Lofi Deep Focus",
-    channel: "Chill Village",
-    stats: "36K views • 3 weeks ago",
+    channelName: "Chill Village",
+    views: "36K views",
+    dateText: "3 weeks ago",
     duration: "23:44:46",
+    source: "sample",
+    badgeText: "Örnek video",
     avatar: ["#d1782f", "#f2dd74"],
-    thumbnail: createThumb("CHILL LOFI BEATS", "deep focus", "#417d72", "#f7a6c8", "#ffffff", "lofi"),
+    imageUrl: createThumb("CHILL LOFI BEATS", "deep focus", "#417d72", "#f7a6c8", "#ffffff", "lofi"),
   },
 ];
 
@@ -110,7 +149,7 @@ function createThumb(title, subtitle, base, accent, text, type) {
     stage: '<rect width="640" height="360" fill="url(#g)"/><circle cx="170" cy="174" r="84" fill="rgba(255,255,255,.22)"/><rect x="112" y="118" width="132" height="172" rx="42" fill="rgba(190,65,75,.78)"/><path d="M260 282 C372 220 480 224 620 170" stroke="rgba(255,255,255,.2)" stroke-width="34" fill="none"/>',
     abstract: '<rect width="640" height="360" fill="url(#g)"/><rect x="172" y="40" width="280" height="280" rx="30" fill="rgba(255,255,255,.13)" transform="rotate(-8 312 180)"/><rect x="218" y="82" width="186" height="198" rx="18" fill="rgba(0,0,0,.16)" transform="rotate(-8 312 180)"/>',
     lofi: '<rect width="640" height="360" fill="url(#g)"/><circle cx="490" cy="78" r="82" fill="rgba(255,166,200,.56)"/><path d="M0 292 C130 232 250 260 355 218 C460 176 540 206 640 144 L640 360 L0 360 Z" fill="rgba(45,95,77,.76)"/><rect x="76" y="154" width="138" height="110" rx="14" fill="rgba(255,255,255,.18)"/>',
-  }[type];
+  }[type] || '<rect width="640" height="360" fill="url(#g)"/>';
 
   const svg = `
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360">
@@ -147,27 +186,35 @@ function addFiles(fileList) {
 
   const mapped = imageFiles.map((file) => ({
     id: crypto.randomUUID(),
-    title: cleanTitle(file.name),
-    channel: "Your Channel",
-    stats: "Kapak önizlemesi",
+    title: formatTitleFromFilename(file.name),
+    channelName: "Your Channel",
+    views: "Test önizleme",
+    dateText: "Sadece tarayıcıda",
     duration: randomDuration(),
     avatar: ["#ff0033", "#3ea6ff"],
-    thumbnail: URL.createObjectURL(file),
-    isUpload: true,
+    imageUrl: URL.createObjectURL(file),
+    source: "upload",
+    badgeText: "Test kapağı",
+    editable: true,
   }));
 
-  uploads = [...mapped, ...uploads];
+  uploadedThumbnails = [...mapped, ...uploadedThumbnails];
   fileInput.value = "";
-  render();
+  renderGrid();
 }
 
-function cleanTitle(fileName) {
-  return fileName
+function isImageFile(filename) {
+  const lowerName = filename.toLowerCase();
+  return IMAGE_EXTENSIONS.some((extension) => lowerName.endsWith(extension));
+}
+
+function formatTitleFromFilename(filename) {
+  return filename
     .replace(/\.[^/.]+$/, "")
     .replace(/[-_]+/g, " ")
     .replace(/\s+/g, " ")
     .trim()
-    .replace(/\b\w/g, (letter) => letter.toUpperCase()) || "Yeni thumbnail";
+    .replace(/\b\w/g, (letter) => letter.toUpperCase()) || "Yeni Thumbnail";
 }
 
 function randomDuration() {
@@ -176,8 +223,152 @@ function randomDuration() {
   return `${minutes}:${seconds}`;
 }
 
-function render() {
-  const videos = [...uploads, ...(showSamples ? sampleVideos : [])];
+function hashString(value) {
+  return Array.from(value).reduce((hash, character) => ((hash << 5) - hash + character.charCodeAt(0)) >>> 0, 0);
+}
+
+function generateVideoMeta(seed) {
+  const hash = hashString(seed);
+  const minutes = (hash % 22) + 4;
+  const seconds = String((hash >> 4) % 60).padStart(2, "0");
+  const views = [`${(hash % 90) + 10} B görüntülenme`, `${(hash % 8) + 1}.${(hash >> 3) % 9} Mn görüntülenme`, `${(hash % 700) + 100} K görüntülenme`];
+  const dates = ["Bugün", "1 gün önce", "3 gün önce", "1 hafta önce", "2 hafta önce", "1 ay önce"];
+
+  return {
+    duration: `${minutes}:${seconds}`,
+    views: views[hash % views.length],
+    dateText: dates[(hash >> 6) % dates.length],
+  };
+}
+
+async function loadPublishedThumbnails() {
+  setPublishedStatus("Yayınlanan kapaklar yükleniyor...");
+
+  try {
+    const manifestItems = await fetchPublishedFromManifest();
+    const files = manifestItems || await fetchPublishedFromGitHub();
+
+    publishedThumbnails = files
+      .filter((file) => isImageFile(file.name || file.path || file.download_url || file.url || ""))
+      .map(createPublishedThumbnailData);
+
+    if (publishedThumbnails.length > 0) {
+      setPublishedStatus(`${publishedThumbnails.length} yayınlanan kapak yüklendi.`);
+    } else {
+      setPublishedStatus("published-thumbnails klasöründe gösterilecek kapak bulunamadı.");
+    }
+  } catch (error) {
+    console.warn("Yayınlanan kapaklar yüklenemedi:", error);
+    publishedThumbnails = [];
+    setPublishedStatus(error.message || "Yayınlanan kapaklar şu an yüklenemedi.", "warning");
+  }
+
+  renderGrid();
+}
+
+async function fetchPublishedFromManifest() {
+  try {
+    const response = await fetch(`${GITHUB_THUMBNAIL_CONFIG.folder}/manifest.json`, { cache: "no-store" });
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const manifest = await response.json();
+    const entries = Array.isArray(manifest) ? manifest : manifest.files;
+
+    if (!Array.isArray(entries)) {
+      return null;
+    }
+
+    return entries.map((entry) => {
+      if (typeof entry === "string") {
+        return {
+          name: entry.split("/").pop(),
+          download_url: `${GITHUB_THUMBNAIL_CONFIG.folder}/${entry}`,
+        };
+      }
+
+      return {
+        name: entry.name || entry.path || "",
+        download_url: entry.download_url || entry.url || `${GITHUB_THUMBNAIL_CONFIG.folder}/${entry.path || entry.name}`,
+      };
+    });
+  } catch (error) {
+    console.warn("published-thumbnails manifest okunamadı:", error);
+    return null;
+  }
+}
+
+async function fetchPublishedFromGitHub() {
+  const { owner, repo, branch, folder } = GITHUB_THUMBNAIL_CONFIG;
+  const hasConfig = owner && repo && owner !== "GITHUB_KULLANICI_ADI" && repo !== "REPO_ADI";
+
+  if (!hasConfig) {
+    throw new Error("GitHub kapak klasörü için owner/repo bilgisi girilmemiş.");
+  }
+
+  const endpoint = `https://api.github.com/repos/${owner}/${repo}/contents/${folder}?ref=${branch}`;
+  const response = await fetch(endpoint, {
+    headers: {
+      Accept: "application/vnd.github+json",
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Yayınlanan kapaklar şu an yüklenemedi.");
+  }
+
+  const files = await response.json();
+  return Array.isArray(files) ? files.filter((file) => file.type === "file") : [];
+}
+
+function createPublishedThumbnailData(file) {
+  const filename = file.name || file.path || "thumbnail";
+  const meta = generateVideoMeta(filename);
+
+  return {
+    id: `published-${filename}`,
+    title: formatTitleFromFilename(filename),
+    imageUrl: file.download_url || file.url || `${GITHUB_THUMBNAIL_CONFIG.folder}/${filename}`,
+    channelName: "HayalHanem",
+    duration: meta.duration,
+    views: meta.views,
+    dateText: meta.dateText,
+    source: "published",
+    badgeText: "Yayınlandı",
+    avatar: ["#ff0033", "#f5a623"],
+  };
+}
+
+function getVisibleVideos() {
+  const samples = showSamples ? mockVideos : [];
+
+  if (activeFilter === "published") {
+    return publishedThumbnails;
+  }
+
+  if (activeFilter === "uploads") {
+    return uploadedThumbnails;
+  }
+
+  if (activeFilter === "samples") {
+    return samples;
+  }
+
+  return [...uploadedThumbnails, ...publishedThumbnails, ...samples];
+}
+
+function setEmptyMessage(message) {
+  const textNode = Array.from(uploadEmpty.childNodes).find((node) => node.nodeType === Node.TEXT_NODE && node.textContent.trim());
+
+  if (textNode) {
+    textNode.textContent = ` ${message}`;
+  }
+}
+
+function renderGrid() {
+  const videos = getVisibleVideos();
   videoGrid.replaceChildren();
 
   videos.forEach((video) => {
@@ -191,21 +382,28 @@ function render() {
     const avatar = node.querySelector(".avatar");
     const deleteButton = node.querySelector(".delete-btn");
     const editButton = node.querySelector(".edit-btn");
+    const badge = node.querySelector(".source-badge");
 
     node.dataset.id = video.id;
-    node.classList.toggle("uploaded", Boolean(video.isUpload));
-    node.classList.toggle("sample", !video.isUpload);
-    image.src = video.thumbnail;
+    node.classList.toggle("uploaded", video.source === "upload");
+    node.classList.toggle("published", video.source === "published");
+    node.classList.toggle("sample", video.source === "sample");
+    image.src = video.imageUrl;
     image.alt = video.title;
+    image.onerror = () => {
+      image.onerror = null;
+      image.src = PLACEHOLDER_THUMBNAIL;
+    };
     title.textContent = video.title;
     titleInput.value = video.title;
-    channel.textContent = video.channel;
-    stats.textContent = video.stats;
+    channel.textContent = video.channelName;
+    stats.textContent = `${video.views} • ${video.dateText}`;
     duration.textContent = video.duration;
+    badge.textContent = video.badgeText;
     avatar.style.setProperty("--avatar-a", video.avatar[0]);
     avatar.style.setProperty("--avatar-b", video.avatar[1]);
 
-    if (video.isUpload) {
+    if (video.editable) {
       deleteButton.addEventListener("click", () => removeUpload(video.id));
       editButton.addEventListener("click", () => startEditing(node, titleInput));
       titleInput.addEventListener("keydown", (event) => {
@@ -225,9 +423,40 @@ function render() {
     videoGrid.append(node);
   });
 
-  clearUploadsButton.disabled = uploads.length === 0;
-  uploadEmpty.classList.toggle("visible", uploads.length === 0);
+  clearUploadsButton.disabled = uploadedThumbnails.length === 0;
   toggleSamplesButton.textContent = showSamples ? "Örnekleri gizle" : "Örnekleri göster";
+  uploadEmpty.classList.toggle("visible", videos.length === 0);
+  setEmptyMessage(getEmptyMessage());
+}
+
+function render() {
+  renderGrid();
+}
+
+function getEmptyMessage() {
+  if (activeFilter === "published") {
+    return "Yayınlanan kapak bulunamadı.";
+  }
+
+  if (activeFilter === "uploads") {
+    return "Henüz test kapağı yüklenmedi.";
+  }
+
+  if (activeFilter === "samples" && !showSamples) {
+    return "Örnek videolar şu an gizli.";
+  }
+
+  return "Gösterilecek kapak bulunamadı.";
+}
+
+function setPublishedStatus(message, type = "") {
+  if (!publishedStatus) {
+    return;
+  }
+
+  publishedStatus.textContent = message;
+  publishedStatus.classList.toggle("visible", Boolean(message));
+  publishedStatus.classList.toggle("warning", type === "warning");
 }
 
 function startEditing(card, input) {
@@ -238,25 +467,25 @@ function startEditing(card, input) {
 
 function finishEditing(id, value, card) {
   const nextTitle = value.trim() || "Yeni thumbnail";
-  uploads = uploads.map((item) => (item.id === id ? { ...item, title: nextTitle } : item));
+  uploadedThumbnails = uploadedThumbnails.map((item) => (item.id === id ? { ...item, title: nextTitle } : item));
   card.classList.remove("editing");
-  render();
+  renderGrid();
 }
 
 function removeUpload(id) {
-  const removed = uploads.find((item) => item.id === id);
+  const removed = uploadedThumbnails.find((item) => item.id === id);
   if (removed) {
-    URL.revokeObjectURL(removed.thumbnail);
+    URL.revokeObjectURL(removed.imageUrl);
   }
-  uploads = uploads.filter((item) => item.id !== id);
-  render();
+  uploadedThumbnails = uploadedThumbnails.filter((item) => item.id !== id);
+  renderGrid();
 }
 
 function clearUploads() {
-  uploads.forEach((item) => URL.revokeObjectURL(item.thumbnail));
-  uploads = [];
+  uploadedThumbnails.forEach((item) => URL.revokeObjectURL(item.imageUrl));
+  uploadedThumbnails = [];
   fileInput.value = "";
-  render();
+  renderGrid();
 }
 
 function initTheme() {
@@ -288,10 +517,12 @@ function updateThemeButton(theme) {
 
   const nextLabel = theme === "dark" ? "Açık" : "Koyu";
   themeText.textContent = nextLabel;
-  themeToggle.setAttribute("aria-label", `${nextLabel} temaya gec`);
+  themeToggle.setAttribute("aria-label", `${nextLabel} temaya geç`);
 }
 
 initTheme();
+renderGrid();
+loadPublishedThumbnails();
 
 fileInput.addEventListener("change", (event) => addFiles(event.target.files));
 
@@ -322,14 +553,20 @@ dropZone.addEventListener("keydown", (event) => {
 
 toggleSamplesButton.addEventListener("click", () => {
   showSamples = !showSamples;
-  render();
+  renderGrid();
 });
 
 clearUploadsButton.addEventListener("click", clearUploads);
+
+sourceFilterButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    activeFilter = button.dataset.filter || "all";
+    sourceFilterButtons.forEach((filterButton) => filterButton.classList.toggle("active", filterButton === button));
+    renderGrid();
+  });
+});
 
 searchForm.addEventListener("submit", (event) => {
   event.preventDefault();
   searchInput.blur();
 });
-
-render();

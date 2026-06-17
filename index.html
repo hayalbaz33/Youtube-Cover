@@ -98,6 +98,19 @@
           </div>
         </section>
 
+        <div class="source-note">
+          Yayınlanan kapaklar: <strong>published-thumbnails</strong> klasöründen otomatik çekilir. Herkesin görmesini istediğiniz kapakları bu klasöre ekleyip GitHub'a pushlayın. Sürükle-bırak ile yüklenenler sadece test amaçlıdır.
+        </div>
+
+        <div class="source-filters" aria-label="Kapak kaynak filtreleri">
+          <button class="filter-btn active" type="button" data-filter="all">Tümü</button>
+          <button class="filter-btn" type="button" data-filter="published">Yayınlananlar</button>
+          <button class="filter-btn" type="button" data-filter="uploads">Test yüklemeleri</button>
+          <button class="filter-btn" type="button" data-filter="samples">Örnek videolar</button>
+        </div>
+
+        <div id="publishedStatus" class="published-status" role="status"></div>
+
         <div class="chips" aria-label="Kategoriler">
           <button class="chip active" type="button">All</button>
           <button class="chip" type="button">Music</button>
@@ -126,7 +139,7 @@
     <template id="videoCardTemplate">
       <article class="video-card">
         <div class="thumb-wrap">
-          <img class="thumbnail" alt="" />
+          <img class="thumbnail" alt="" loading="lazy" />
           <span class="duration"></span>
           <div class="card-tools">
             <button class="tool-btn edit-btn" type="button" aria-label="Başlığı düzenle">
@@ -141,6 +154,7 @@
           <div class="avatar"></div>
           <div class="copy">
             <h2 class="video-title"></h2>
+            <span class="source-badge"></span>
             <label class="title-editor">
               <span class="sr-only">Video başlığı</span>
               <input type="text" maxlength="90" />
