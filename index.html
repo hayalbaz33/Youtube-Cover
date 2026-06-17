@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>YouTube Thumbnail Cover Grid</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand">
+          <button class="icon-btn" type="button" aria-label="Menü">
+            <span class="hamburger"></span>
+          </button>
+          <div class="youtube-mark" aria-label="YouTube">
+            <span class="play-mark"></span>
+            <span class="wordmark">YouTube</span>
+          </div>
+        </div>
+
+        <form class="search" role="search">
+          <label class="sr-only" for="searchInput">Ara</label>
+          <input id="searchInput" type="search" placeholder="Search" autocomplete="off" />
+          <button type="submit" aria-label="Ara">
+            <span class="search-icon"></span>
+          </button>
+        </form>
+
+        <div class="top-actions">
+          <button class="icon-btn hide-mobile" type="button" aria-label="Sesle ara">
+            <span class="mic-icon"></span>
+          </button>
+          <button class="theme-toggle" id="themeToggle" type="button" aria-label="Tema deÄŸiÅŸtir">
+            <span class="theme-icon" aria-hidden="true"></span>
+            <span class="theme-text">Açık</span>
+          </button>
+          <button class="icon-btn" type="button" aria-label="Daha fazla">
+            <span class="more-icon"></span>
+          </button>
+          <button class="sign-in" type="button">
+            <span class="user-icon"></span>
+            Sign in
+          </button>
+        </div>
+      </header>
+
+      <aside class="sidebar">
+        <nav class="nav-section" aria-label="Ana menü">
+          <a class="nav-item active" href="#"><span class="nav-icon home-icon"></span>Home</a>
+          <a class="nav-item" href="#"><span class="nav-icon shorts-icon"></span>Shorts</a>
+          <a class="nav-item" href="#"><span class="nav-icon subs-icon"></span>Subscriptions</a>
+        </nav>
+
+        <nav class="nav-section" aria-label="Kitaplık">
+          <a class="nav-item" href="#"><span class="nav-icon library-icon"></span>Library</a>
+          <a class="nav-item" href="#"><span class="nav-icon history-icon"></span>History</a>
+        </nav>
+
+        <div class="signin-note">
+          <p>Sign in to like videos, comment, and subscribe.</p>
+          <button class="sign-in compact" type="button">
+            <span class="user-icon"></span>
+            Sign in
+          </button>
+        </div>
+
+        <nav class="nav-section explore" aria-label="Explore">
+          <span class="nav-heading">Explore</span>
+          <a class="nav-item" href="#"><span class="nav-icon trend-icon"></span>Trending</a>
+          <a class="nav-item" href="#"><span class="nav-icon shop-icon"></span>Shopping</a>
+          <a class="nav-item" href="#"><span class="nav-icon music-icon"></span>Music</a>
+          <a class="nav-item" href="#"><span class="nav-icon movie-icon"></span>Movies & TV</a>
+          <a class="nav-item" href="#"><span class="nav-icon live-icon"></span>Live</a>
+          <a class="nav-item" href="#"><span class="nav-icon gaming-icon"></span>Gaming</a>
+          <a class="nav-item" href="#"><span class="nav-icon news-icon"></span>News</a>
+          <a class="nav-item" href="#"><span class="nav-icon sport-icon"></span>Sports</a>
+        </nav>
+      </aside>
+
+      <main class="content">
+        <section class="control-strip" aria-label="Kapak yükleme araçları">
+          <div id="dropZone" class="drop-zone" tabindex="0">
+            <input id="fileInput" type="file" accept="image/*" multiple />
+            <div class="drop-symbol">
+              <span class="upload-arrow"></span>
+            </div>
+            <div>
+              <h1>Kapakları ana sayfaya ekle</h1>
+              <p>Görselleri sürükle bırak ya da toplu seçim yap.</p>
+            </div>
+          </div>
+
+          <div class="control-actions">
+            <label class="primary-action" for="fileInput">Thumbnail seç</label>
+            <button id="toggleSamples" class="ghost-action" type="button">Örnekleri gizle</button>
+            <button id="clearUploads" class="ghost-action danger" type="button" disabled>Yüklenenleri temizle</button>
+          </div>
+        </section>
+
+        <div class="chips" aria-label="Kategoriler">
+          <button class="chip active" type="button">All</button>
+          <button class="chip" type="button">Music</button>
+          <button class="chip" type="button">News</button>
+          <button class="chip" type="button">Chill-out music</button>
+          <button class="chip" type="button">Gaming</button>
+          <button class="chip" type="button">Live</button>
+          <button class="chip" type="button">Meditation music</button>
+          <button class="chip" type="button">Inventions</button>
+          <button class="chip" type="button">Game shows</button>
+          <button class="chip" type="button">Comedy</button>
+          <button class="chip" type="button">Trucks</button>
+          <button class="chip" type="button">Deep House</button>
+        </div>
+
+        <section class="video-surface" aria-live="polite">
+          <div id="uploadEmpty" class="empty-state">
+            <span class="empty-dot"></span>
+            İlk yüklediğin kapaklar bu grid'in en üstünde YouTube video kartı olarak görünür.
+          </div>
+          <div id="videoGrid" class="video-grid"></div>
+        </section>
+      </main>
+    </div>
+
+    <template id="videoCardTemplate">
+      <article class="video-card">
+        <div class="thumb-wrap">
+          <img class="thumbnail" alt="" />
+          <span class="duration"></span>
+          <div class="card-tools">
+            <button class="tool-btn edit-btn" type="button" aria-label="Başlığı düzenle">
+              <span class="edit-icon"></span>
+            </button>
+            <button class="tool-btn delete-btn" type="button" aria-label="Kartı sil">
+              <span class="delete-icon"></span>
+            </button>
+          </div>
+        </div>
+        <div class="video-meta">
+          <div class="avatar"></div>
+          <div class="copy">
+            <h2 class="video-title"></h2>
+            <label class="title-editor">
+              <span class="sr-only">Video başlığı</span>
+              <input type="text" maxlength="90" />
+            </label>
+            <p class="channel"></p>
+            <p class="stats"></p>
+          </div>
+        </div>
+      </article>
+    </template>
+
+    <script src="app.js"></script>
+  </body>
+</html>
