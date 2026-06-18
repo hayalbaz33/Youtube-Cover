@@ -168,6 +168,20 @@
       </article>
     </template>
 
+    <div id="thumbnailPreviewModal" class="thumbnail-preview-modal" aria-hidden="true">
+      <div class="thumbnail-preview-overlay" data-preview-close></div>
+      <div class="thumbnail-preview-content" role="dialog" aria-modal="true" aria-labelledby="thumbnailPreviewTitle">
+        <button class="thumbnail-preview-close" type="button" aria-label="Önizlemeyi kapat" data-preview-close>
+          <span aria-hidden="true">×</span>
+        </button>
+        <img id="thumbnailPreviewImage" class="thumbnail-preview-image" alt="" />
+        <div class="thumbnail-preview-info">
+          <h2 id="thumbnailPreviewTitle" class="thumbnail-preview-title"></h2>
+          <span id="thumbnailPreviewBadge" class="thumbnail-preview-badge"></span>
+        </div>
+      </div>
+    </div>
+
     <script src="app.js"></script>
   </body>
 </html>

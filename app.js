@@ -11,6 +11,11 @@ const themeToggle = document.querySelector("#themeToggle");
 const themeText = document.querySelector(".theme-text");
 const publishedStatus = document.querySelector("#publishedStatus");
 const sourceFilterButtons = document.querySelectorAll(".filter-btn");
+const thumbnailPreviewModal = document.querySelector("#thumbnailPreviewModal");
+const thumbnailPreviewImage = document.querySelector("#thumbnailPreviewImage");
+const thumbnailPreviewTitle = document.querySelector("#thumbnailPreviewTitle");
+const thumbnailPreviewBadge = document.querySelector("#thumbnailPreviewBadge");
+const thumbnailPreviewCloseTargets = document.querySelectorAll("[data-preview-close]");
 
 const THEME_STORAGE_KEY = "youtube-preview-theme";
 const CHANNEL_LOGO_PATH = "assets/hayalhanem-logo.png";
@@ -338,6 +343,7 @@ function renderGrid() {
 
   videos.forEach((video) => {
     const node = template.content.firstElementChild.cloneNode(true);
+    const thumbWrap = node.querySelector(".thumb-wrap");
     const image = node.querySelector(".thumbnail");
     const title = node.querySelector(".video-title");
     const titleInput = node.querySelector(".title-editor input");
@@ -366,6 +372,16 @@ function renderGrid() {
     stats.textContent = `${video.views} • ${video.dateText}`;
     duration.textContent = video.duration;
     badge.textContent = video.badgeText;
+    thumbWrap.setAttribute("role", "button");
+    thumbWrap.setAttribute("tabindex", "0");
+    thumbWrap.setAttribute("aria-label", `${video.title} kapağını büyüt`);
+    thumbWrap.addEventListener("click", () => openThumbnailPreview(video));
+    thumbWrap.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        openThumbnailPreview(video);
+      }
+    });
     avatar.style.setProperty("--avatar-a", video.avatar[0]);
     avatar.style.setProperty("--avatar-b", video.avatar[1]);
     avatar.classList.remove("avatar-fallback");
@@ -434,6 +450,45 @@ function setPublishedStatus(message, type = "") {
   publishedStatus.classList.toggle("warning", type === "warning");
 }
 
+function openThumbnailPreview(thumbnailData) {
+  if (!thumbnailPreviewModal || !thumbnailPreviewImage || !thumbnailPreviewTitle || !thumbnailPreviewBadge) {
+    return;
+  }
+
+  thumbnailPreviewImage.src = thumbnailData.imageUrl;
+  thumbnailPreviewImage.alt = thumbnailData.title;
+  thumbnailPreviewTitle.textContent = thumbnailData.title;
+  thumbnailPreviewBadge.textContent = thumbnailData.badgeText;
+  thumbnailPreviewModal.classList.add("is-open");
+  thumbnailPreviewModal.setAttribute("aria-hidden", "false");
+  document.body.classList.add("modal-open");
+  document.addEventListener("keydown", handlePreviewKeydown);
+}
+
+function closeThumbnailPreview() {
+  if (!thumbnailPreviewModal || !thumbnailPreviewImage) {
+    return;
+  }
+
+  thumbnailPreviewModal.classList.remove("is-open");
+  thumbnailPreviewModal.setAttribute("aria-hidden", "true");
+  document.body.classList.remove("modal-open");
+  document.removeEventListener("keydown", handlePreviewKeydown);
+  thumbnailPreviewImage.removeAttribute("src");
+}
+
+function bindThumbnailPreviewEvents() {
+  thumbnailPreviewCloseTargets.forEach((target) => {
+    target.addEventListener("click", closeThumbnailPreview);
+  });
+}
+
+function handlePreviewKeydown(event) {
+  if (event.key === "Escape") {
+    closeThumbnailPreview();
+  }
+}
+
 function startEditing(card, input) {
   card.classList.add("editing");
   input.focus();
@@ -496,6 +551,7 @@ function updateThemeButton(theme) {
 }
 
 initTheme();
+bindThumbnailPreviewEvents();
 renderGrid();
 loadPublishedThumbnails();
 
