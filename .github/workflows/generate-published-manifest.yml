@@ -16,12 +16,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
-        with:
-          fetch-depth: 0
+        shell: bash
+        run: |
+          git clone --depth 1 --branch "${GITHUB_REF_NAME}" "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" repo
+          cd repo
 
       - name: Generate manifest.json
         shell: python
+        working-directory: repo
         run: |
           import json
           import re
@@ -73,6 +75,7 @@ jobs:
 
       - name: Commit manifest changes
         shell: bash
+        working-directory: repo
         run: |
           if git diff --quiet -- published-thumbnails/manifest.json; then
             echo "manifest.json is already up to date."
