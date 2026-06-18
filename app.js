@@ -29,6 +29,10 @@ let publishedThumbnails = [];
 let activeFilter = "all";
 let showSamples = true;
 let lastPreviewOpenAt = 0;
+let touchStartX = 0;
+let touchStartY = 0;
+let touchStartedAt = 0;
+let lockedScrollY = 0;
 
 const mockVideos = [
   {
@@ -335,17 +339,63 @@ function findVideoDataById(id) {
     .find((item) => String(item.id) === String(id));
 }
 
-function handleThumbnailPreviewEvent(event) {
+function handlePreviewTouchStart(event) {
+  const touch = event.touches && event.touches[0];
+
+  if (!touch) {
+    return;
+  }
+
+  touchStartX = touch.clientX;
+  touchStartY = touch.clientY;
+  touchStartedAt = Date.now();
+}
+
+function handlePreviewTouchEnd(event) {
   if (event.target.closest("[data-no-preview]")) {
     return;
   }
 
-  const thumbnailEl = event.target.closest("[data-preview-id]");
+  const trigger = event.target.closest("[data-preview-id]");
 
-  if (!thumbnailEl) {
+  if (!trigger) {
     return;
   }
 
+  const touch = event.changedTouches && event.changedTouches[0];
+
+  if (touch) {
+    const deltaX = Math.abs(touch.clientX - touchStartX);
+    const deltaY = Math.abs(touch.clientY - touchStartY);
+
+    if (deltaX > 12 || deltaY > 12) {
+      return;
+    }
+  }
+
+  if (Date.now() - touchStartedAt > 900) {
+    return;
+  }
+
+  event.preventDefault();
+  openPreviewFromTrigger(trigger);
+}
+
+function handlePreviewClick(event) {
+  if (event.target.closest("[data-no-preview]")) {
+    return;
+  }
+
+  const trigger = event.target.closest("[data-preview-id]");
+
+  if (!trigger) {
+    return;
+  }
+
+  openPreviewFromTrigger(trigger);
+}
+
+function openPreviewFromTrigger(trigger) {
   const now = Date.now();
 
   if (now - lastPreviewOpenAt < 350) {
@@ -353,7 +403,7 @@ function handleThumbnailPreviewEvent(event) {
   }
 
   lastPreviewOpenAt = now;
-  const videoData = findVideoDataById(thumbnailEl.dataset.previewId);
+  const videoData = findVideoDataById(trigger.dataset.previewId);
 
   if (!videoData) {
     return;
@@ -395,6 +445,7 @@ function renderGrid() {
     node.classList.toggle("sample", video.source === "sample");
     image.src = video.imageUrl;
     image.alt = video.title;
+    image.draggable = false;
     image.onerror = () => {
       image.onerror = null;
       image.src = PLACEHOLDER_THUMBNAIL;
@@ -405,8 +456,6 @@ function renderGrid() {
     stats.textContent = `${video.views} • ${video.dateText}`;
     duration.textContent = video.duration;
     badge.textContent = video.badgeText;
-    thumbWrap.setAttribute("role", "button");
-    thumbWrap.setAttribute("tabindex", "0");
     thumbWrap.setAttribute("aria-label", `${video.title} kapağını büyüt`);
     thumbWrap.dataset.previewId = video.id;
     thumbWrap.addEventListener("keydown", (event) => {
@@ -486,6 +535,26 @@ function setPublishedStatus(message, type = "") {
   publishedStatus.classList.toggle("warning", type === "warning");
 }
 
+function lockBodyScroll() {
+  lockedScrollY = window.scrollY || window.pageYOffset || 0;
+  document.body.classList.add("modal-open");
+  document.body.style.position = "fixed";
+  document.body.style.top = `-${lockedScrollY}px`;
+  document.body.style.left = "0";
+  document.body.style.right = "0";
+  document.body.style.width = "100%";
+}
+
+function unlockBodyScroll() {
+  document.body.classList.remove("modal-open");
+  document.body.style.position = "";
+  document.body.style.top = "";
+  document.body.style.left = "";
+  document.body.style.right = "";
+  document.body.style.width = "";
+  window.scrollTo(0, lockedScrollY);
+}
+
 function openThumbnailPreview(thumbnailData) {
   if (!thumbnailPreviewModal || !thumbnailPreviewImage || !thumbnailPreviewTitle || !thumbnailPreviewBadge) {
     return;
@@ -497,7 +566,7 @@ function openThumbnailPreview(thumbnailData) {
   thumbnailPreviewBadge.textContent = thumbnailData.badgeText;
   thumbnailPreviewModal.classList.add("is-open");
   thumbnailPreviewModal.setAttribute("aria-hidden", "false");
-  document.body.classList.add("modal-open");
+  lockBodyScroll();
   document.addEventListener("keydown", handlePreviewKeydown);
 }
 
@@ -508,7 +577,7 @@ function closeThumbnailPreview() {
 
   thumbnailPreviewModal.classList.remove("is-open");
   thumbnailPreviewModal.setAttribute("aria-hidden", "true");
-  document.body.classList.remove("modal-open");
+  unlockBodyScroll();
   document.removeEventListener("keydown", handlePreviewKeydown);
   thumbnailPreviewImage.removeAttribute("src");
 }
@@ -517,8 +586,12 @@ function bindThumbnailPreviewEvents() {
   thumbnailPreviewCloseTargets.forEach((target) => {
     target.addEventListener("click", closeThumbnailPreview);
   });
-  document.addEventListener("click", handleThumbnailPreviewEvent);
-  document.addEventListener("pointerup", handleThumbnailPreviewEvent);
+  document.removeEventListener("click", handlePreviewClick);
+  document.removeEventListener("touchstart", handlePreviewTouchStart);
+  document.removeEventListener("touchend", handlePreviewTouchEnd);
+  document.addEventListener("click", handlePreviewClick);
+  document.addEventListener("touchstart", handlePreviewTouchStart, { passive: true });
+  document.addEventListener("touchend", handlePreviewTouchEnd, { passive: false });
 }
 
 function handlePreviewKeydown(event) {
