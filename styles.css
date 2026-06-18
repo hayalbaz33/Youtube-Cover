@@ -1050,6 +1050,9 @@ body[data-theme="light"] .theme-icon::after {
   background: var(--surface);
   transition: background-color 220ms ease;
   cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  pointer-events: auto;
 }
 
 .thumbnail {
@@ -1057,6 +1060,7 @@ body[data-theme="light"] .theme-icon::after {
   height: 100%;
   display: block;
   object-fit: cover;
+  pointer-events: none;
   transition: transform 220ms ease, filter 220ms ease;
 }
 
@@ -1068,7 +1072,7 @@ body[data-theme="light"] .theme-icon::after {
 .thumbnail-preview-modal {
   position: fixed;
   inset: 0;
-  z-index: 100;
+  z-index: 9999;
   display: grid;
   place-items: center;
   padding: 28px;
@@ -1190,6 +1194,7 @@ body[data-theme="light"] .theme-icon::after {
   font-size: 12px;
   font-weight: 700;
   line-height: 1;
+  pointer-events: none;
 }
 
 .card-tools {

@@ -28,6 +28,7 @@ let uploadedThumbnails = [];
 let publishedThumbnails = [];
 let activeFilter = "all";
 let showSamples = true;
+let lastPreviewOpenAt = 0;
 
 const mockVideos = [
   {
@@ -329,6 +330,38 @@ function getVisibleVideos() {
   return [...uploadedThumbnails, ...publishedThumbnails, ...samples];
 }
 
+function findVideoDataById(id) {
+  return [...uploadedThumbnails, ...publishedThumbnails, ...mockVideos]
+    .find((item) => String(item.id) === String(id));
+}
+
+function handleThumbnailPreviewEvent(event) {
+  if (event.target.closest("[data-no-preview]")) {
+    return;
+  }
+
+  const thumbnailEl = event.target.closest("[data-preview-id]");
+
+  if (!thumbnailEl) {
+    return;
+  }
+
+  const now = Date.now();
+
+  if (now - lastPreviewOpenAt < 350) {
+    return;
+  }
+
+  lastPreviewOpenAt = now;
+  const videoData = findVideoDataById(thumbnailEl.dataset.previewId);
+
+  if (!videoData) {
+    return;
+  }
+
+  openThumbnailPreview(videoData);
+}
+
 function setEmptyMessage(message) {
   const textNode = Array.from(uploadEmpty.childNodes).find((node) => node.nodeType === Node.TEXT_NODE && node.textContent.trim());
 
@@ -375,11 +408,14 @@ function renderGrid() {
     thumbWrap.setAttribute("role", "button");
     thumbWrap.setAttribute("tabindex", "0");
     thumbWrap.setAttribute("aria-label", `${video.title} kapağını büyüt`);
-    thumbWrap.addEventListener("click", () => openThumbnailPreview(video));
+    thumbWrap.dataset.previewId = video.id;
     thumbWrap.addEventListener("keydown", (event) => {
       if (event.key === "Enter" || event.key === " ") {
         event.preventDefault();
-        openThumbnailPreview(video);
+        const videoData = findVideoDataById(thumbWrap.dataset.previewId);
+        if (videoData) {
+          openThumbnailPreview(videoData);
+        }
       }
     });
     avatar.style.setProperty("--avatar-a", video.avatar[0]);
@@ -481,6 +517,8 @@ function bindThumbnailPreviewEvents() {
   thumbnailPreviewCloseTargets.forEach((target) => {
     target.addEventListener("click", closeThumbnailPreview);
   });
+  document.addEventListener("click", handleThumbnailPreviewEvent);
+  document.addEventListener("pointerup", handleThumbnailPreviewEvent);
 }
 
 function handlePreviewKeydown(event) {
