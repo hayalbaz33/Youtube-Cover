@@ -13,6 +13,7 @@ const publishedStatus = document.querySelector("#publishedStatus");
 const sourceFilterButtons = document.querySelectorAll(".filter-btn");
 
 const THEME_STORAGE_KEY = "youtube-preview-theme";
+const CHANNEL_LOGO_PATH = "assets/hayalhanem-logo.png";
 const PUBLISHED_THUMBNAILS_FOLDER = "published-thumbnails";
 const PUBLISHED_MANIFEST_URL = `${PUBLISHED_THUMBNAILS_FOLDER}/manifest.json`;
 const IMAGE_EXTENSIONS = [".jpg", ".jpeg", ".png", ".webp", ".gif"];
@@ -32,7 +33,7 @@ const mockVideos = [
     dateText: "2 hours ago",
     duration: "3:47",
     source: "sample",
-    badgeText: "Ã–rnek video",
+    badgeText: "Örnek video",
     avatar: ["#f5f5f5", "#5f6368"],
     imageUrl: createThumb("CBS NEWS", "Desert Frontline", "#b9a17d", "#23201c", "#f7f1e7", "news"),
   },
@@ -44,7 +45,7 @@ const mockVideos = [
     dateText: "3 months ago",
     duration: "23:59:40",
     source: "sample",
-    badgeText: "Ã–rnek video",
+    badgeText: "Örnek video",
     avatar: ["#72512c", "#d8b56a"],
     imageUrl: createThumb("Work & Jazz", "rain sounds", "#14313c", "#c46930", "#fff7e6", "music"),
   },
@@ -56,7 +57,7 @@ const mockVideos = [
     dateText: "5 months ago",
     duration: "36:15",
     source: "sample",
-    badgeText: "Ã–rnek video",
+    badgeText: "Örnek video",
     avatar: ["#4b352b", "#c69b80"],
     imageUrl: createThumb("Frozen In Time", "abandoned mansion", "#2d3d36", "#ad7d55", "#f0e3d2", "mansion"),
   },
@@ -68,7 +69,7 @@ const mockVideos = [
     dateText: "9 hours ago",
     duration: "27:45",
     source: "sample",
-    badgeText: "Ã–rnek video",
+    badgeText: "Örnek video",
     avatar: ["#7da06d", "#dceab8"],
     imageUrl: createThumb("Q&A", "March edition", "#d9c6ad", "#577c9c", "#ffffff", "talk"),
   },
@@ -80,7 +81,7 @@ const mockVideos = [
     dateText: "6 months ago",
     duration: "20:18",
     source: "sample",
-    badgeText: "Ã–rnek video",
+    badgeText: "Örnek video",
     avatar: ["#6f4e32", "#d2a064"],
     imageUrl: createThumb("WTF?", "Oak tree discovery", "#855f3d", "#d7b57a", "#241610", "wood"),
   },
@@ -92,7 +93,7 @@ const mockVideos = [
     dateText: "1 month ago",
     duration: "10:39",
     source: "sample",
-    badgeText: "Ã–rnek video",
+    badgeText: "Örnek video",
     avatar: ["#020202", "#4ed8e8"],
     imageUrl: createThumb("MLB Moments", "impossible catch", "#2d8d48", "#f4f7ff", "#ffffff", "sports"),
   },
@@ -104,7 +105,7 @@ const mockVideos = [
     dateText: "7 days ago",
     duration: "7:29",
     source: "sample",
-    badgeText: "Ã–rnek video",
+    badgeText: "Örnek video",
     avatar: ["#433043", "#e6b98b"],
     imageUrl: createThumb("YOU'RE A D*CK!", "stand up", "#161b50", "#b04953", "#ffffff", "stage"),
   },
@@ -116,7 +117,7 @@ const mockVideos = [
     dateText: "2 years ago",
     duration: "223:36:40",
     source: "sample",
-    badgeText: "Ã–rnek video",
+    badgeText: "Örnek video",
     avatar: ["#0c0c0c", "#727272"],
     imageUrl: createThumb("223 HOURS", "slow burn", "#c05f59", "#f3b07d", "#311111", "abstract"),
   },
@@ -128,7 +129,7 @@ const mockVideos = [
     dateText: "3 weeks ago",
     duration: "23:44:46",
     source: "sample",
-    badgeText: "Ã–rnek video",
+    badgeText: "Örnek video",
     avatar: ["#d1782f", "#f2dd74"],
     imageUrl: createThumb("CHILL LOFI BEATS", "deep focus", "#417d72", "#f7a6c8", "#ffffff", "lofi"),
   },
@@ -184,13 +185,13 @@ function addFiles(fileList) {
     id: crypto.randomUUID(),
     title: formatTitleFromFilename(file.name),
     channelName: "Your Channel",
-    views: "Test Ã¶nizleme",
-    dateText: "Sadece tarayÄ±cÄ±da",
+    views: "Test önizleme",
+    dateText: "Sadece tarayıcıda",
     duration: randomDuration(),
     avatar: ["#ff0033", "#3ea6ff"],
     imageUrl: URL.createObjectURL(file),
     source: "upload",
-    badgeText: "Test kapaÄŸÄ±",
+    badgeText: "Test kapağı",
     editable: true,
   }));
 
@@ -210,7 +211,10 @@ function formatTitleFromFilename(filename) {
     .replace(/[-_]+/g, " ")
     .replace(/\s+/g, " ")
     .trim()
-    .replace(/\b\w/g, (letter) => letter.toUpperCase()) || "Yeni Thumbnail";
+    .split(" ")
+    .filter(Boolean)
+    .map((word) => word.charAt(0).toLocaleUpperCase("tr-TR") + word.slice(1))
+    .join(" ") || "Yeni Thumbnail";
 }
 
 function randomDuration() {
@@ -227,8 +231,8 @@ function generateVideoMeta(seed) {
   const hash = hashString(seed);
   const minutes = (hash % 22) + 4;
   const seconds = String((hash >> 4) % 60).padStart(2, "0");
-  const views = [`${(hash % 90) + 10} B gÃ¶rÃ¼ntÃ¼lenme`, `${(hash % 8) + 1}.${(hash >> 3) % 9} Mn gÃ¶rÃ¼ntÃ¼lenme`, `${(hash % 700) + 100} K gÃ¶rÃ¼ntÃ¼lenme`];
-  const dates = ["BugÃ¼n", "1 gÃ¼n Ã¶nce", "3 gÃ¼n Ã¶nce", "1 hafta Ã¶nce", "2 hafta Ã¶nce", "1 ay Ã¶nce"];
+  const views = [`${(hash % 90) + 10} B görüntülenme`, `${(hash % 8) + 1}.${(hash >> 3) % 9} Mn görüntülenme`, `${(hash % 700) + 100} K görüntülenme`];
+  const dates = ["Bugün", "1 gün önce", "3 gün önce", "1 hafta önce", "2 hafta önce", "1 ay önce"];
 
   return {
     duration: `${minutes}:${seconds}`,
@@ -238,7 +242,7 @@ function generateVideoMeta(seed) {
 }
 
 async function loadPublishedThumbnails() {
-  setPublishedStatus("YayÄ±nlanan kapaklar yÃ¼kleniyor...");
+  setPublishedStatus("Yayınlanan kapaklar yükleniyor...");
 
   try {
     const manifestItems = await fetchPublishedFromManifest();
@@ -248,14 +252,14 @@ async function loadPublishedThumbnails() {
       .map(createPublishedThumbnailData);
 
     if (publishedThumbnails.length > 0) {
-      setPublishedStatus(`${publishedThumbnails.length} yayÄ±nlanan kapak yÃ¼klendi.`);
+      setPublishedStatus(`${publishedThumbnails.length} yayınlanan kapak yüklendi.`);
     } else {
-      setPublishedStatus("published-thumbnails klasÃ¶rÃ¼nde gÃ¶sterilecek kapak bulunamadÄ±.");
+      setPublishedStatus("published-thumbnails klasöründe gösterilecek kapak bulunamadı.");
     }
   } catch (error) {
-    console.warn("YayÄ±nlanan kapaklar yÃ¼klenemedi:", error);
+    console.warn("Yayınlanan kapaklar yüklenemedi:", error);
     publishedThumbnails = [];
-    setPublishedStatus(error.message || "YayÄ±nlanan kapaklar ÅŸu an yÃ¼klenemedi.", "warning");
+    setPublishedStatus(error.message || "Yayınlanan kapaklar şu an yüklenemedi.", "warning");
   }
 
   renderGrid();
@@ -266,19 +270,19 @@ async function fetchPublishedFromManifest() {
     const response = await fetch(PUBLISHED_MANIFEST_URL, { cache: "no-store" });
 
     if (!response.ok) {
-      console.warn(`${PUBLISHED_MANIFEST_URL} bulunamadÄ± veya okunamadÄ±. YayÄ±nlanan kapaklar atlanÄ±yor.`);
+      console.warn(`${PUBLISHED_MANIFEST_URL} bulunamadı veya okunamadı. Yayınlanan kapaklar atlanıyor.`);
       return [];
     }
 
     const manifest = await response.json();
     if (!Array.isArray(manifest)) {
-      console.warn(`${PUBLISHED_MANIFEST_URL} bir JSON array olmalÄ±.`);
+      console.warn(`${PUBLISHED_MANIFEST_URL} bir JSON array olmalı.`);
       return [];
     }
 
     return manifest;
   } catch (error) {
-    console.warn("published-thumbnails manifest okunamadÄ±:", error);
+    console.warn("published-thumbnails manifest okunamadı:", error);
     return [];
   }
 }
@@ -341,6 +345,7 @@ function renderGrid() {
     const stats = node.querySelector(".stats");
     const duration = node.querySelector(".duration");
     const avatar = node.querySelector(".avatar");
+    const avatarImage = node.querySelector(".channel-avatar-img");
     const deleteButton = node.querySelector(".delete-btn");
     const editButton = node.querySelector(".edit-btn");
     const badge = node.querySelector(".source-badge");
@@ -358,11 +363,20 @@ function renderGrid() {
     title.textContent = video.title;
     titleInput.value = video.title;
     channel.textContent = video.channelName;
-    stats.textContent = `${video.views} â€¢ ${video.dateText}`;
+    stats.textContent = `${video.views} • ${video.dateText}`;
     duration.textContent = video.duration;
     badge.textContent = video.badgeText;
     avatar.style.setProperty("--avatar-a", video.avatar[0]);
     avatar.style.setProperty("--avatar-b", video.avatar[1]);
+    avatar.classList.remove("avatar-fallback");
+    avatarImage.style.display = "";
+    avatarImage.src = CHANNEL_LOGO_PATH;
+    avatarImage.alt = video.channelName || "HayalHanem";
+    avatarImage.onerror = () => {
+      avatarImage.onerror = null;
+      avatarImage.style.display = "none";
+      avatar.classList.add("avatar-fallback");
+    };
 
     if (video.editable) {
       deleteButton.addEventListener("click", () => removeUpload(video.id));
@@ -385,7 +399,7 @@ function renderGrid() {
   });
 
   clearUploadsButton.disabled = uploadedThumbnails.length === 0;
-  toggleSamplesButton.textContent = showSamples ? "Ã–rnekleri gizle" : "Ã–rnekleri gÃ¶ster";
+  toggleSamplesButton.textContent = showSamples ? "Örnek videoları gizle" : "Örnek videoları göster";
   uploadEmpty.classList.toggle("visible", videos.length === 0);
   setEmptyMessage(getEmptyMessage());
 }
@@ -396,18 +410,18 @@ function render() {
 
 function getEmptyMessage() {
   if (activeFilter === "published") {
-    return "YayÄ±nlanan kapak bulunamadÄ±.";
+    return "Yayınlanan kapak bulunamadı.";
   }
 
   if (activeFilter === "uploads") {
-    return "HenÃ¼z test kapaÄŸÄ± yÃ¼klenmedi.";
+    return "Henüz test kapağı yüklenmedi.";
   }
 
   if (activeFilter === "samples" && !showSamples) {
-    return "Ã–rnek videolar ÅŸu an gizli.";
+    return "Örnek videolar şu an gizli.";
   }
 
-  return "GÃ¶sterilecek kapak bulunamadÄ±.";
+  return "Gösterilecek kapak bulunamadı.";
 }
 
 function setPublishedStatus(message, type = "") {
@@ -476,9 +490,9 @@ function updateThemeButton(theme) {
     return;
   }
 
-  const nextLabel = theme === "dark" ? "AÃ§Ä±k" : "Koyu";
+  const nextLabel = theme === "dark" ? "Açık" : "Koyu";
   themeText.textContent = nextLabel;
-  themeToggle.setAttribute("aria-label", `${nextLabel} temaya geÃ§`);
+  themeToggle.setAttribute("aria-label", `${nextLabel} temaya geç`);
 }
 
 initTheme();

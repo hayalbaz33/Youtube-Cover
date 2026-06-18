@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - "published-thumbnails/**"
+      - "!published-thumbnails/manifest.json"
       - ".github/workflows/generate-published-manifest.yml"
   workflow_dispatch:
 
@@ -15,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
@@ -29,6 +30,7 @@ jobs:
           folder = Path("published-thumbnails")
           manifest_path = folder / "manifest.json"
           image_extensions = {".jpg", ".jpeg", ".png", ".webp", ".gif"}
+          existing_by_image = {}
 
           def make_title(path):
               name = path.stem
@@ -36,14 +38,32 @@ jobs:
               name = re.sub(r"\s+", " ", name).strip()
               return name.title() or "Yeni Kapak"
 
+          if manifest_path.exists():
+              try:
+                  existing = json.loads(manifest_path.read_text(encoding="utf-8"))
+                  if isinstance(existing, list):
+                      existing_by_image = {
+                          item.get("image"): item
+                          for item in existing
+                          if isinstance(item, dict) and item.get("image")
+                      }
+              except json.JSONDecodeError:
+                  existing_by_image = {}
+
           items = []
           if folder.exists():
               for path in sorted(folder.iterdir(), key=lambda item: item.name.lower()):
                   if path.is_file() and path.suffix.lower() in image_extensions:
-                      items.append({
-                          "title": make_title(path),
-                          "image": path.as_posix()
-                      })
+                      image_path = path.as_posix()
+                      previous = existing_by_image.get(image_path, {})
+                      item = {
+                          "title": previous.get("title") or make_title(path),
+                          "image": image_path
+                      }
+                      for key in ("duration", "views", "dateText"):
+                          if previous.get(key):
+                              item[key] = previous[key]
+                      items.append(item)
 
           folder.mkdir(exist_ok=True)
           manifest_path.write_text(
