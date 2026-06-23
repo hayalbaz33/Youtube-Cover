@@ -1,166 +1,46 @@
 [
   {
-    "title": "37",
-    "image": "published-thumbnails/37.png"
+    "title": "1",
+    "image": "published-thumbnails/1.png"
   },
   {
-    "title": "39",
-    "image": "published-thumbnails/39.png"
+    "title": "2",
+    "image": "published-thumbnails/2.png"
   },
   {
-    "title": "40",
-    "image": "published-thumbnails/40.png"
+    "title": "3",
+    "image": "published-thumbnails/3.png"
   },
   {
-    "title": "42",
-    "image": "published-thumbnails/42.png"
+    "title": "4",
+    "image": "published-thumbnails/4.jpeg"
   },
   {
-    "title": "Bg Onaylı 1 Elhamdülillah Dedik Yetmez Mi",
-    "image": "published-thumbnails/BG- Onaylı -1 Elhamdülillah Dedik Yetmez Mi.png"
+    "title": "Mediaplayer 1",
+    "image": "published-thumbnails/Mediaplayer-1.png"
   },
   {
-    "title": "Bg Onaylı 2 Dilini Şükre Alıştır Rızık Seni Bulur",
-    "image": "published-thumbnails/BG- Onaylı -2 Dilini Şükre Alıştır Rızık Seni Bulur.png"
+    "title": "Mediaplayer 2",
+    "image": "published-thumbnails/Mediaplayer-2.png"
   },
   {
-    "title": "Bg Onaylı 3 Tabağın Dibini Sıyıran Şükürsüz Adam",
-    "image": "published-thumbnails/BG- Onaylı -3 Tabağın Dibini Sıyıran Şükürsüz Adam.png"
+    "title": "Mediaplayer 3",
+    "image": "published-thumbnails/Mediaplayer-3.png"
   },
   {
-    "title": "Bg Onaylı 4 Şükür",
-    "image": "published-thumbnails/BG- Onaylı -4 ŞÜKÜR.png"
+    "title": "Mediaplayer 4",
+    "image": "published-thumbnails/Mediaplayer-4.png"
   },
   {
-    "title": "Bg Onaylı 5 Elhamdülillah Dedik Yetmez Mi",
-    "image": "published-thumbnails/BG- Onaylı -5 Elhamdülillah Dedik Yetmez Mi.png"
+    "title": "Mediaplayer 5",
+    "image": "published-thumbnails/Mediaplayer-5.png"
   },
   {
-    "title": "Bg Onaylı 6 Elhamdülillah Dedik Yetmez Mi",
-    "image": "published-thumbnails/BG- Onaylı -6 Elhamdülillah Dedik Yetmez Mi.png"
+    "title": "Mediaplayer 6",
+    "image": "published-thumbnails/Mediaplayer-6.png"
   },
   {
-    "title": "Bu Sohbeti Sakın İzleme 3",
-    "image": "published-thumbnails/Bu Sohbeti Sakın İzleme -3.png"
-  },
-  {
-    "title": "Dilini Şükre Alıştır Rızın Seni Bulur 1",
-    "image": "published-thumbnails/Dilini Şükre Alıştır Rızın Seni Bulur -1.jpeg"
-  },
-  {
-    "title": "Dilini Şükre Alıştır Rızın Seni Bulur 2",
-    "image": "published-thumbnails/Dilini Şükre Alıştır Rızın Seni Bulur -2.jpeg"
-  },
-  {
-    "title": "Dilini Şükre Alıştır Rızın Seni Bulur 3",
-    "image": "published-thumbnails/Dilini Şükre Alıştır Rızın Seni Bulur -3.jpeg"
-  },
-  {
-    "title": "Dilini Şükre Alıştır Rızın Seni Bulur 4",
-    "image": "published-thumbnails/Dilini Şükre Alıştır Rızın Seni Bulur -4.jpeg"
-  },
-  {
-    "title": "Dilini Şükre Alıştır Rızın Seni Bulur 5",
-    "image": "published-thumbnails/Dilini Şükre Alıştır Rızın Seni Bulur -5.jpeg"
-  },
-  {
-    "title": "Dilini Şükre Alıştır Rızın Seni Bulur 6",
-    "image": "published-thumbnails/Dilini Şükre Alıştır Rızın Seni Bulur -6.jpeg"
-  },
-  {
-    "title": "Elhamdülillah Dedik Yetmez Mi 1",
-    "image": "published-thumbnails/Elhamdülillah Dedik Yetmez Mi -1.png"
-  },
-  {
-    "title": "Elhamdülillah Dedik Yetmez Mi 2",
-    "image": "published-thumbnails/Elhamdülillah Dedik Yetmez Mi -2.png"
-  },
-  {
-    "title": "Elhamdülillah Dedik Yetmez Mi 3",
-    "image": "published-thumbnails/Elhamdülillah Dedik Yetmez Mi -3.png"
-  },
-  {
-    "title": "Elhamdülillah Dedik Yetmez Mi 4",
-    "image": "published-thumbnails/Elhamdülillah Dedik Yetmez Mi -4.png"
-  },
-  {
-    "title": "Elhamdülillah Dedik Yetmez Mi 5",
-    "image": "published-thumbnails/Elhamdülillah Dedik Yetmez Mi -5.png"
-  },
-  {
-    "title": "Elhamdülillah Dedik Yetmez Mi 6",
-    "image": "published-thumbnails/Elhamdülillah Dedik Yetmez Mi -6.png"
-  },
-  {
-    "title": "Elhamdülillah Dedik Yetmez Mi 7",
-    "image": "published-thumbnails/Elhamdülillah Dedik Yetmez Mi -7.png"
-  },
-  {
-    "title": "Elhamdülillah Dedik Yetmez Mi 8",
-    "image": "published-thumbnails/Elhamdülillah Dedik Yetmez Mi -8.png"
-  },
-  {
-    "title": "Ey Şükürsüz Adam!",
-    "image": "published-thumbnails/Ey Şükürsüz Adam!.png"
-  },
-  {
-    "title": "Rızkın Kesildiyse 1000 Kere Şükret",
-    "image": "published-thumbnails/Rızkın Kesildiyse 1000 Kere Şükret.png"
-  },
-  {
-    "title": "Tabağın Dibini Sıyıran Şükürsüz Adam 2",
-    "image": "published-thumbnails/Tabağın Dibini Sıyıran Şükürsüz Adam -2.png"
-  },
-  {
-    "title": "Tabağın Dibini Sıyıran Şükürsüz Adam 3",
-    "image": "published-thumbnails/Tabağın Dibini Sıyıran Şükürsüz Adam -3.png"
-  },
-  {
-    "title": "Tabağın Dibini Sıyıran Şükürsüz Adam 4",
-    "image": "published-thumbnails/Tabağın Dibini Sıyıran Şükürsüz Adam -4.png"
-  },
-  {
-    "title": "Tabağın Dibini Sıyıran Şükürsüz Adam",
-    "image": "published-thumbnails/Tabağın Dibini Sıyıran Şükürsüz Adam.png"
-  },
-  {
-    "title": "Şükür 1",
-    "image": "published-thumbnails/ŞÜKÜR-1.png"
-  },
-  {
-    "title": "Şükür 2",
-    "image": "published-thumbnails/ŞÜKÜR-2.png"
-  },
-  {
-    "title": "Şükür 3",
-    "image": "published-thumbnails/ŞÜKÜR-3.png"
-  },
-  {
-    "title": "Şükür",
-    "image": "published-thumbnails/ŞÜKÜR.png"
-  },
-  {
-    "title": "Şükürsüz Adam 2",
-    "image": "published-thumbnails/Şükürsüz Adam-2.png"
-  },
-  {
-    "title": "Şükürsüz Adam",
-    "image": "published-thumbnails/Şükürsüz Adam.png"
-  },
-  {
-    "title": "Şükürsüz 1",
-    "image": "published-thumbnails/ŞÜKÜRSÜZ-1.png"
-  },
-  {
-    "title": "Şükürsüz 2",
-    "image": "published-thumbnails/ŞÜKÜRSÜZ-2.png"
-  },
-  {
-    "title": "Şükürsüz 3",
-    "image": "published-thumbnails/ŞÜKÜRSÜZ-3.png"
-  },
-  {
-    "title": "Şükürsüz Siyah",
-    "image": "published-thumbnails/ŞÜKÜRSÜZ-Siyah.png"
+    "title": "Mediaplayer 7",
+    "image": "published-thumbnails/Mediaplayer-7.png"
   }
 ]
