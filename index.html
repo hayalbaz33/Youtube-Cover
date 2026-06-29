@@ -102,14 +102,20 @@
           Yayınlanan kapaklar <strong>published-thumbnails/manifest.json</strong> dosyasından okunur. Siz sadece kapakları published-thumbnails klasörüne ekleyip GitHub'a pushlayın; manifest dosyası push sonrası otomatik güncellenir. Sürükle-bırak ile yüklenenler sadece test amaçlıdır.
         </div>
 
+        <div class="source-note local-video-note">
+          Local video modu: Videoları <strong>local-videos</strong> klasörüne koyup <strong>local-videos/manifest.json</strong> içine yazın. <strong>start-local.bat</strong> ile çalıştırınca aynı Wi-Fi'daki cihazlar bu PC üzerinden videoları izleyebilir.
+        </div>
+
         <div class="source-filters" aria-label="Kapak kaynak filtreleri">
           <button class="filter-btn active" type="button" data-filter="all">Tümü</button>
           <button class="filter-btn" type="button" data-filter="published">Yayınlananlar</button>
           <button class="filter-btn" type="button" data-filter="uploads">Test yüklemeleri</button>
+          <button class="filter-btn" type="button" data-filter="local-videos">Local videolar</button>
           <button class="filter-btn" type="button" data-filter="samples">Örnek videolar</button>
         </div>
 
         <div id="publishedStatus" class="published-status" role="status"></div>
+        <div id="localVideoStatus" class="published-status" role="status"></div>
 
         <div class="chips" aria-label="Kategoriler">
           <button class="chip active" type="button">All</button>
@@ -138,9 +144,11 @@
 
     <template id="videoCardTemplate">
       <article class="video-card">
-        <button class="thumb-wrap thumbnail-wrapper thumbnail-preview-trigger" type="button">
-          <img class="thumbnail" alt="" loading="lazy" />
-          <span class="duration"></span>
+        <div class="thumb-frame">
+          <button class="thumb-wrap thumbnail-wrapper thumbnail-preview-trigger" type="button">
+            <img class="thumbnail" alt="" loading="lazy" />
+            <span class="duration"></span>
+          </button>
           <div class="card-tools">
             <button class="tool-btn edit-btn" type="button" aria-label="Başlığı düzenle" data-no-preview>
               <span class="edit-icon"></span>
@@ -149,7 +157,7 @@
               <span class="delete-icon"></span>
             </button>
           </div>
-        </button>
+        </div>
         <div class="video-meta">
           <div class="avatar channel-avatar">
             <img class="channel-avatar-img" src="assets/hayalhanem-logo.png" alt="HayalHanem" />
@@ -178,6 +186,20 @@
         <div class="thumbnail-preview-info">
           <h2 id="thumbnailPreviewTitle" class="thumbnail-preview-title"></h2>
           <span id="thumbnailPreviewBadge" class="thumbnail-preview-badge"></span>
+        </div>
+      </div>
+    </div>
+
+    <div id="videoPreviewModal" class="thumbnail-preview-modal video-preview-modal" aria-hidden="true">
+      <div class="thumbnail-preview-overlay" data-video-close></div>
+      <div class="thumbnail-preview-content video-preview-content" role="dialog" aria-modal="true" aria-labelledby="videoPreviewTitle">
+        <button class="thumbnail-preview-close" type="button" aria-label="Videoyu kapat" data-video-close>
+          <span aria-hidden="true">×</span>
+        </button>
+        <video id="videoPreviewPlayer" class="video-preview-player" controls preload="metadata" playsinline></video>
+        <div class="thumbnail-preview-info">
+          <h2 id="videoPreviewTitle" class="thumbnail-preview-title"></h2>
+          <span id="videoPreviewBadge" class="thumbnail-preview-badge"></span>
         </div>
       </div>
     </div>

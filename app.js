@@ -10,12 +10,18 @@ const searchInput = document.querySelector("#searchInput");
 const themeToggle = document.querySelector("#themeToggle");
 const themeText = document.querySelector(".theme-text");
 const publishedStatus = document.querySelector("#publishedStatus");
+const localVideoStatus = document.querySelector("#localVideoStatus");
 const sourceFilterButtons = document.querySelectorAll(".filter-btn");
 const thumbnailPreviewModal = document.querySelector("#thumbnailPreviewModal");
 const thumbnailPreviewImage = document.querySelector("#thumbnailPreviewImage");
 const thumbnailPreviewTitle = document.querySelector("#thumbnailPreviewTitle");
 const thumbnailPreviewBadge = document.querySelector("#thumbnailPreviewBadge");
 const thumbnailPreviewCloseTargets = document.querySelectorAll("[data-preview-close]");
+const videoPreviewModal = document.querySelector("#videoPreviewModal");
+const videoPreviewPlayer = document.querySelector("#videoPreviewPlayer");
+const videoPreviewTitle = document.querySelector("#videoPreviewTitle");
+const videoPreviewBadge = document.querySelector("#videoPreviewBadge");
+const videoPreviewCloseTargets = document.querySelectorAll("[data-video-close]");
 
 const THEME_STORAGE_KEY = "youtube-preview-theme";
 const CHANNEL_LOGO_PATH = "assets/hayalhanem-logo.png";
@@ -23,11 +29,14 @@ const PUBLISHED_THUMBNAILS_FOLDER = "published-thumbnails";
 const PUBLISHED_MANIFEST_URL = `${PUBLISHED_THUMBNAILS_FOLDER}/manifest.json`;
 const IMAGE_EXTENSIONS = [".jpg", ".jpeg", ".png", ".webp", ".gif"];
 const PLACEHOLDER_THUMBNAIL = createThumb("Kapak Yuklenemedi", "published-thumbnails", "#2d2d2d", "#555555", "#ffffff", "abstract");
+const LOCAL_VIDEO_PLACEHOLDER = createThumb("LOCAL VIDEO", "HayalHanem", "#1f2937", "#16a34a", "#ffffff", "music");
 
 let uploadedThumbnails = [];
 let publishedThumbnails = [];
+let localVideoThumbnails = [];
 let activeFilter = "all";
 let showSamples = true;
+let localVideoMode = false;
 let lastPreviewOpenAt = 0;
 let touchStartX = 0;
 let touchStartY = 0;
@@ -275,6 +284,55 @@ async function loadPublishedThumbnails() {
   renderGrid();
 }
 
+async function initLocalVideoMode() {
+  try {
+    const healthResponse = await fetch("/api/health", { cache: "no-store" });
+
+    if (!healthResponse.ok) {
+      setLocalVideoStatus("Local video modu aktif değil. Videoları aynı ağda izletmek için start-local.bat ile çalıştırın.");
+      return;
+    }
+
+    const health = await healthResponse.json();
+
+    if (!health.ok || health.mode !== "local-video-server") {
+      setLocalVideoStatus("Local video modu aktif değil. Videoları aynı ağda izletmek için start-local.bat ile çalıştırın.");
+      return;
+    }
+
+    localVideoMode = true;
+    await loadLocalVideos();
+  } catch {
+    localVideoMode = false;
+    localVideoThumbnails = [];
+    setLocalVideoStatus("Local video modu aktif değil. Videoları aynı ağda izletmek için start-local.bat ile çalıştırın.");
+  }
+}
+
+async function loadLocalVideos() {
+  try {
+    const response = await fetch("/api/local-videos", { cache: "no-store" });
+    const manifest = response.ok ? await response.json() : [];
+    const items = Array.isArray(manifest) ? manifest : [];
+
+    localVideoThumbnails = items
+      .filter((item) => item.video)
+      .map(createLocalVideoData);
+
+    if (localVideoThumbnails.length > 0) {
+      setLocalVideoStatus(`${localVideoThumbnails.length} local video yüklendi.`);
+    } else {
+      setLocalVideoStatus("Local video modu aktif, local-videos/manifest.json içinde video bulunamadı.");
+    }
+  } catch (error) {
+    console.warn("Local videolar yüklenemedi:", error);
+    localVideoThumbnails = [];
+    setLocalVideoStatus("Local videolar şu an yüklenemedi.", "warning");
+  }
+
+  renderGrid();
+}
+
 async function fetchPublishedFromManifest() {
   try {
     const response = await fetch(PUBLISHED_MANIFEST_URL, { cache: "no-store" });
@@ -316,6 +374,25 @@ function createPublishedThumbnailData(file, index) {
   };
 }
 
+function createLocalVideoData(item, index) {
+  const filename = (item.video || "").split("/").pop() || `local-video-${index}`;
+  const meta = generateVideoMeta(filename);
+
+  return {
+    id: `local-video-${index}`,
+    title: item.title || formatTitleFromFilename(filename),
+    imageUrl: item.thumbnail || LOCAL_VIDEO_PLACEHOLDER,
+    videoUrl: item.video,
+    channelName: "HayalHanem",
+    duration: item.duration || "00:00",
+    views: item.views || "Local video",
+    dateText: item.dateText || "Bu bilgisayardan",
+    source: "local-video",
+    badgeText: "Video Test",
+    avatar: ["#16a34a", "#3ea6ff"],
+  };
+}
+
 function getVisibleVideos() {
   const samples = showSamples ? mockVideos : [];
 
@@ -327,15 +404,19 @@ function getVisibleVideos() {
     return uploadedThumbnails;
   }
 
+  if (activeFilter === "local-videos") {
+    return localVideoThumbnails;
+  }
+
   if (activeFilter === "samples") {
     return samples;
   }
 
-  return [...uploadedThumbnails, ...publishedThumbnails, ...samples];
+  return [...uploadedThumbnails, ...localVideoThumbnails, ...publishedThumbnails, ...samples];
 }
 
 function findVideoDataById(id) {
-  return [...uploadedThumbnails, ...publishedThumbnails, ...mockVideos]
+  return [...uploadedThumbnails, ...localVideoThumbnails, ...publishedThumbnails, ...mockVideos]
     .find((item) => String(item.id) === String(id));
 }
 
@@ -409,6 +490,11 @@ function openPreviewFromTrigger(trigger) {
     return;
   }
 
+  if (videoData.source === "local-video") {
+    openVideoPreview(videoData);
+    return;
+  }
+
   openThumbnailPreview(videoData);
 }
 
@@ -442,6 +528,7 @@ function renderGrid() {
     node.dataset.id = video.id;
     node.classList.toggle("uploaded", video.source === "upload");
     node.classList.toggle("published", video.source === "published");
+    node.classList.toggle("local-video", video.source === "local-video");
     node.classList.toggle("sample", video.source === "sample");
     image.src = video.imageUrl;
     image.alt = video.title;
@@ -456,7 +543,7 @@ function renderGrid() {
     stats.textContent = `${video.views} • ${video.dateText}`;
     duration.textContent = video.duration;
     badge.textContent = video.badgeText;
-    thumbWrap.setAttribute("aria-label", `${video.title} kapağını büyüt`);
+    thumbWrap.setAttribute("aria-label", video.source === "local-video" ? `${video.title} videosunu aç` : `${video.title} kapağını büyüt`);
     thumbWrap.dataset.previewId = video.id;
     thumbWrap.addEventListener("keydown", (event) => {
       if (event.key === "Enter" || event.key === " ") {
@@ -518,6 +605,10 @@ function getEmptyMessage() {
     return "Henüz test kapağı yüklenmedi.";
   }
 
+  if (activeFilter === "local-videos") {
+    return localVideoMode ? "Local video bulunamadı." : "Local video modu aktif değil.";
+  }
+
   if (activeFilter === "samples" && !showSamples) {
     return "Örnek videolar şu an gizli.";
   }
@@ -533,6 +624,16 @@ function setPublishedStatus(message, type = "") {
   publishedStatus.textContent = message;
   publishedStatus.classList.toggle("visible", Boolean(message));
   publishedStatus.classList.toggle("warning", type === "warning");
+}
+
+function setLocalVideoStatus(message, type = "") {
+  if (!localVideoStatus) {
+    return;
+  }
+
+  localVideoStatus.textContent = message;
+  localVideoStatus.classList.toggle("visible", Boolean(message));
+  localVideoStatus.classList.toggle("warning", type === "warning");
 }
 
 function lockBodyScroll() {
@@ -582,9 +683,45 @@ function closeThumbnailPreview() {
   thumbnailPreviewImage.removeAttribute("src");
 }
 
+function openVideoPreview(videoData) {
+  if (!videoPreviewModal || !videoPreviewPlayer || !videoPreviewTitle || !videoPreviewBadge) {
+    return;
+  }
+
+  videoPreviewPlayer.pause();
+  videoPreviewPlayer.removeAttribute("src");
+  videoPreviewPlayer.innerHTML = "";
+  videoPreviewPlayer.src = videoData.videoUrl;
+  videoPreviewPlayer.preload = "metadata";
+  videoPreviewPlayer.setAttribute("playsinline", "");
+  videoPreviewTitle.textContent = videoData.title;
+  videoPreviewBadge.textContent = videoData.badgeText;
+  videoPreviewModal.classList.add("is-open");
+  videoPreviewModal.setAttribute("aria-hidden", "false");
+  lockBodyScroll();
+  document.addEventListener("keydown", handlePreviewKeydown);
+}
+
+function closeVideoPreview() {
+  if (!videoPreviewModal || !videoPreviewPlayer) {
+    return;
+  }
+
+  videoPreviewPlayer.pause();
+  videoPreviewPlayer.removeAttribute("src");
+  videoPreviewPlayer.load();
+  videoPreviewModal.classList.remove("is-open");
+  videoPreviewModal.setAttribute("aria-hidden", "true");
+  unlockBodyScroll();
+  document.removeEventListener("keydown", handlePreviewKeydown);
+}
+
 function bindThumbnailPreviewEvents() {
   thumbnailPreviewCloseTargets.forEach((target) => {
     target.addEventListener("click", closeThumbnailPreview);
+  });
+  videoPreviewCloseTargets.forEach((target) => {
+    target.addEventListener("click", closeVideoPreview);
   });
   document.removeEventListener("click", handlePreviewClick);
   document.removeEventListener("touchstart", handlePreviewTouchStart);
@@ -597,6 +734,7 @@ function bindThumbnailPreviewEvents() {
 function handlePreviewKeydown(event) {
   if (event.key === "Escape") {
     closeThumbnailPreview();
+    closeVideoPreview();
   }
 }
 
@@ -665,6 +803,7 @@ initTheme();
 bindThumbnailPreviewEvents();
 renderGrid();
 loadPublishedThumbnails();
+initLocalVideoMode();
 
 fileInput.addEventListener("change", (event) => addFiles(event.target.files));
 
